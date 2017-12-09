@@ -1,48 +1,42 @@
 'use strict';
 
+const runSequence = require('run-sequence');
 const gulp = require('gulp');
 const sass = require('gulp-sass');
-const minify = require('gulp-minify');
 const imageMin = require('gulp-imagemin');
 const browserSync = require('browser-sync').create();
+const browserify = require('browserify');
+const source = require('vinyl-source-stream');
+const babel = require('gulp-babel');
+const uglify = require('gulp-uglify');
+const pump = require('pump');
 
 /**
  * Varáveis de configuração de pastas
  */
 const _inputFilesScss = './sass/**/*.scss';
-const _outputFilesCss = './public/css/';
+const _outputFilesCss = './dist/css/';
 
-const _inputFilesJs =  './js/*.js';
-const _outputFilesJs = './public/js/';
+const _inputFilesJs =  './js/index.js';
+const _outputFilesJs = './dist/js/';
 
 const _inputImages =  './imgs/*';
-const _outputImages = './public/imgs/';
+const _outputImages = './dist/imgs/';
 
 /**
  * Inicio das tasks
  */
+
+gulp.task('default', () => {
+    runSequence('browserify', 'babel', 'compress', () => {});
+});
+
 
 gulp.task('sass', () => {
     return gulp
         .src(_inputFilesScss)
         .pipe(sass().on('error', sass.logError))
         .pipe(gulp.dest(_outputFilesCss));
-});
-
-gulp.task('minify', () => {
-    gulp.src(_inputFilesJs)
-        .pipe(minify({
-            ext:{
-                src:'-debug.js',
-                min:'.js'
-            },
-            exclude: [],
-            ignoreFiles: []
-        }))
-        .pipe(gulp.dest(_outputFilesJs))
-        .pipe(browserSync.reload({
-            stream: true
-        }));
 });
 
 gulp.task('imagemin', () => {
@@ -61,4 +55,29 @@ gulp.task('browserSync', () => {
             baseDir: './'
         }
     })
+});
+
+gulp.task('browserify', () => {
+    return browserify(_inputFilesJs)
+        .bundle()
+        .pipe(source('bundle.js'))
+        .pipe(gulp.dest(_outputFilesJs));
+});
+
+gulp.task('babel', () =>
+    gulp.src(`${_outputFilesJs}/*.js`)
+        .pipe(babel({
+            presets: ['env']
+        }))
+        .pipe(gulp.dest(_outputFilesJs))
+);
+
+gulp.task('compress', (cb) => {
+    pump([
+            gulp.src(`${_outputFilesJs}/*.js`),
+            uglify(),
+            gulp.dest(_outputFilesJs)
+        ],
+    cb
+    );
 });
