@@ -4,7 +4,8 @@
   "description": "App of the test to a new job :D",
   "main": "index.js",
   "scripts": {
-    "test": "npm test"
+    "test": "npm test",
+    "start": "http-server -p 9797"
   },
   "author": "Samuel Silva",
   "license": "ISC",

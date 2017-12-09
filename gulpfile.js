@@ -31,7 +31,6 @@ gulp.task('default', () => {
     runSequence('browserify', 'babel', 'compress', () => {});
 });
 
-
 gulp.task('sass', () => {
     return gulp
         .src(_inputFilesScss)
