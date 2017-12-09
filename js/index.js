@@ -1,26 +1,47 @@
-import { App } from './App.js';
+const App = require('./App.js');
 
 const initFunction = (function(){
     
+    const $ = document.querySelector.bind(document);
+    const $$ = document.querySelectorAll.bind(document);
+
     const app = new App();
     app.hideVideo();
     
     const addEventInPlayItem = function() {
         
-        [...document.querySelectorAll('.play-item')].forEach(link => {
+        [...$$('.play-item')].forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                console.log(e.srcElement.dataset);
                 app.openVideo()
                     .load(e.srcElement.dataset);
             });
         });
-    }
+    };
+
+   $('.prev-item').addEventListener('click', (e) => {
+        e.preventDefault();
+        const prevItem = app.prevItem();
+        if(prevItem)
+            app.load(prevItem);
+    });
+
+    $('.next-item').addEventListener('click', (e) => {
+        e.preventDefault();
+        const nextItem = app.nextItem();
+        if(nextItem)
+            app.load(nextItem);
+    });
+
+    $('.close-video').addEventListener('click', (e) => {
+        e.preventDefault();
+        app.hideVideo();
+    });
 
     const data = app
         .getData()
         .then(response => {
-            app.buildList(JSON.parse(response));
+            app.buildList((response));
             addEventInPlayItem();
         });    
 }());
