@@ -10,6 +10,7 @@ const source = require('vinyl-source-stream');
 const babel = require('gulp-babel');
 const uglify = require('gulp-uglify');
 const pump = require('pump');
+const clean = require('gulp-clean');
 
 /**
  * Varáveis de configuração de pastas
@@ -28,7 +29,7 @@ const _outputImages = './dist/imgs/';
  */
 
 gulp.task('default', () => {
-    runSequence('browserify', 'babel', 'compress', () => {});
+    runSequence('clean', 'browserify', 'babel', 'compress', () => {});
 });
 
 gulp.task('sass', () => {
@@ -45,7 +46,7 @@ gulp.task('imagemin', () => {
 });
 
 gulp.task('watch', ['browserSync'], () => {
-    gulp.watch(_inputFilesScss, ['sass']); 
+    gulp.watch(['default']); 
 })
 
 gulp.task('browserSync', () => {
@@ -80,3 +81,8 @@ gulp.task('compress', (cb) => {
     cb
     );
 });
+
+gulp.task('clean', () => {
+    return gulp.src(`${_outputFilesJs}/*.js`, {read: false})
+    .pipe(clean());
+ });
