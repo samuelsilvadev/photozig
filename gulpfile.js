@@ -29,7 +29,7 @@ const _outputImages = './dist/imgs/';
  */
 
 gulp.task('default', () => {
-    runSequence('clean', 'browserify', 'babel', 'compress', () => {});
+    runSequence('clean', 'browserify', 'babel', 'compress', 'imagemin', () => {});
 });
 
 gulp.task('sass', () => {
@@ -41,7 +41,7 @@ gulp.task('sass', () => {
 
 gulp.task('imagemin', () => {
     gulp.src(_inputImages)
-        .pipe(imagemin())
+        .pipe(imageMin())
         .pipe(gulp.dest(_outputImages))
 });
 
@@ -83,6 +83,6 @@ gulp.task('compress', (cb) => {
 });
 
 gulp.task('clean', () => {
-    return gulp.src(`${_outputFilesJs}/*.js`, {read: false})
+    return gulp.src(`./dist/*`, {read: false})
     .pipe(clean());
  });
