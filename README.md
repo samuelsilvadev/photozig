@@ -20,3 +20,8 @@ You need install first, node and npm.
 4. gulp
 5. npm start
 
+### Contacts
+
+- [Twitter](https://twitter.com/samuelsilvadev)
+- [samuelsilvawb@gmail.com](mailto:samuelsilvawb@gmail.com)
+
