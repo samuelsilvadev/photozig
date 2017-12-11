@@ -3,12 +3,15 @@ const HttpFactory = require('./HttpFactory.js');
 
 const App = function() {
 
+    this.newElementVideo = document.createElement('video');
+
     this._screenElements = {
         collection: document.querySelector('.collection'),
         containerVideo: document.querySelector('.container__video'),
         containerBanner: document.querySelector('.container__banner'),
         audio: document.querySelector('#audio'),
-        canvas: document.querySelector('.canvas')  
+        canvas: document.querySelector('.canvas'),
+        elementVideo: this.newElementVideo
     }
 };
 
@@ -32,7 +35,7 @@ App.prototype.buildList = function( data ) {
                 <i class="material-icons" data-indice="${index}" data-bg="${o.bg}" data-sg="${o.sg}" title="Click here to start a video">play_circle_outline</i>
             </a>
         </li>`
-    }).join('');    
+    }).join('');
 };
 
 App.prototype.openVideo = function() {
@@ -53,43 +56,50 @@ App.prototype.load = function( itemList ) {
     
     const txts = this._loadedObjects.filter(obj => obj.indice == itemList.indice)[0].txts;
     const context = this._screenElements.canvas.getContext('2d');    
-    const elementVideo = document.createElement('video');
     const self = this;
     
+    let timeCont = 0;
+    let tmpAddText = false;
+    let tmpCountText = false;
+
     const hasTxts = function() { return txts; }
     const countIsLittleThanTxts = function() { return timeCont < txts.length; }
     const currentTimeIsEqualToObjectTime = function() {
         return parseFloat(self._screenElements.audio.currentTime).toFixed(1) == parseFloat(txts[timeCont].time).toFixed(1);
     }
     
-    let timeCont = 0;
-    
-    elementVideo.src = itemList.bg;
-    elementVideo.loop = true
-    
-    this._screenElements.audio.src = itemList.sg;
-    this._videoRefer =  elementVideo;
+    this._screenElements.elementVideo.src = itemList.bg;
+    this._screenElements.elementVideo.loop = true
+    this._screenElements.audio.src = itemList.sg;    
 
-    this._screenElements.audio.addEventListener('ended', (e) => elementVideo.loop = false);
-    elementVideo.addEventListener('loadeddata', () => {
+    this._screenElements.audio.addEventListener('ended', (e) => this._screenElements.elementVideo.loop = false);
+    this._screenElements.elementVideo.addEventListener('loadeddata', () => {
         
-        this._screenElements.audio.currentTime = elementVideo.currentTime;
+        this._screenElements.audio.currentTime = this._screenElements.elementVideo.currentTime;
         this._screenElements.audio.play();
-        elementVideo.play();
+        this._screenElements.elementVideo.play();
         updateView();
     });
 
-    const updateView = function() {        
+    const updateView = function() {
         
-        context.drawImage(elementVideo,0,0,'600','310');
+        context.drawImage(self._screenElements.elementVideo,0,0,'600','310');
         
-        if( hasTxts() 
+        if( tmpAddText || (hasTxts() 
         && countIsLittleThanTxts() 
-        && currentTimeIsEqualToObjectTime()) {
+        && currentTimeIsEqualToObjectTime())) {
         
-            self._addTextToCanvas(context, txts[timeCont].txt);
-            timeCont++;
-        }     
+            tmpAddText = true;
+            self._addTextToCanvas(context, txts[timeCont].txt);            
+            if(tmpAddText && tmpCountText < 40) {
+                tmpCountText++;                
+            } else {
+                timeCont++;
+                tmpAddText = false;
+                tmpCountText = 0;
+                self._addTextToCanvas(context, '');
+            }
+        }
         
         requestAnimationFrame(updateView);
     }
@@ -98,7 +108,7 @@ App.prototype.load = function( itemList ) {
 
 App.prototype.unload = function() {
     if(this._screenElements.audio) this._screenElements.audio.src = "";
-    if(this._videoRefer) this._videoRefer.src = "";
+    if(this._screenElements.elementVideo) this._screenElements.elementVideo.src = "";
     return this;
 };
 
