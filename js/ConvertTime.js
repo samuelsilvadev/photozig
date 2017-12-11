@@ -1,4 +1,3 @@
-
 const ConvertTime = function() {};
 
 ConvertTime.toMinutes = function(timestamp) {
@@ -9,4 +8,4 @@ ConvertTime.toSeconds = function(timestamp) {
     return timestamp - ConvertTime.toMinutes(timestamp) * 60; 
 }
 
-export default ConvertTime;
+module.exports = ConvertTime;

@@ -1,4 +1,5 @@
 const $ = require('jquery');
+
 /**
  * This class will agregate other functions
  * 
